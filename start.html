@@ -4,56 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Вводи точно</title>
-  <script>
-  // #region agent log
-  (function () {
-    var EP = "http://127.0.0.1:7763/ingest/2ce12648-8d12-4ec3-80b9-c7acb282fade";
-    function dbg(hypothesisId, location, message, data) {
-      fetch(EP, { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "e43c49" }, body: JSON.stringify({ sessionId: "e43c49", runId: "perf-1", hypothesisId: hypothesisId, location: location, message: message, data: data, timestamp: Date.now() }) }).catch(function () {});
-    }
-    window.__dbgPerf = dbg;
-    dbg("A", "index.html:head", "head-script-start", { now: Math.round(performance.now()), htmlChars: document.documentElement ? 0 : 0 });
-    var imgEvents = [];
-    document.addEventListener("load", function (e) {
-      var t = e.target;
-      if (!t || t.tagName !== "IMG") return;
-      var src = t.getAttribute("src") || "";
-      imgEvents.push({ t: Math.round(performance.now()), w: t.naturalWidth, h: t.naturalHeight, srcKb: Math.round(src.length / 1024), complete: t.complete });
-    }, true);
-    function imgSummary() {
-      var imgs = document.images;
-      var complete = 0, srcBytes = 0, mp = 0, unique = 0, seen = {};
-      for (var i = 0; i < imgs.length; i++) {
-        if (imgs[i].complete && imgs[i].naturalWidth) complete++;
-        var src = imgs[i].getAttribute("src") || "";
-        srcBytes += src.length;
-        mp += (imgs[i].naturalWidth * imgs[i].naturalHeight) / 1e6;
-        if (src && !seen[src]) { seen[src] = 1; unique++; }
-      }
-      return { imgCount: imgs.length, uniqueSrc: unique, complete: complete, srcMb: Math.round(srcBytes / 10485.76) / 100, megapixels: Math.round(mp * 100) / 100, loadEvents: imgEvents.length, firstImgT: imgEvents[0] ? imgEvents[0].t : null, lastImgT: imgEvents.length ? imgEvents[imgEvents.length - 1].t : null, slowest: imgEvents.slice().sort(function (a, b) { return b.srcKb - a.srcKb; }).slice(0, 5) };
-    }
-    document.addEventListener("DOMContentLoaded", function () {
-      var mem = performance.memory ? { usedMb: Math.round(performance.memory.usedJSHeapSize / 1048576), totalMb: Math.round(performance.memory.totalJSHeapSize / 1048576) } : null;
-      dbg("A", "index.html:DOMContentLoaded", "dom-ready", { now: Math.round(performance.now()), screens: document.querySelectorAll(".screen").length, htmlKb: Math.round((document.documentElement.outerHTML || "").length / 1024), mem: mem, imgs: imgSummary() });
-    });
-    window.addEventListener("load", function () {
-      var mem = performance.memory ? { usedMb: Math.round(performance.memory.usedJSHeapSize / 1048576), totalMb: Math.round(performance.memory.totalJSHeapSize / 1048576) } : null;
-      var nav = performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
-      dbg("A", "index.html:load", "window-load", { now: Math.round(performance.now()), mem: mem, nav: nav ? { dns: Math.round(nav.domainLookupEnd - nav.domainLookupStart), transfer: Math.round(nav.transferSize || 0), encoded: Math.round(nav.encodedBodySize || 0), decoded: Math.round(nav.decodedBodySize || 0), responseEnd: Math.round(nav.responseEnd), domComplete: Math.round(nav.domComplete), loadEventEnd: Math.round(nav.loadEventEnd) } : null, imgs: imgSummary() });
-    });
-    if (PerformanceObserver) {
-      try {
-        var po = new PerformanceObserver(function (list) {
-          list.getEntries().forEach(function (e) {
-            dbg("C", "index.html:longtask", "longtask", { now: Math.round(performance.now()), dur: Math.round(e.duration), start: Math.round(e.startTime) });
-          });
-        });
-        po.observe({ type: "longtask", buffered: true });
-      } catch (err) {}
-    }
-  })();
-  // #endregion
-  </script>
   <style>
 /* beauty-database — mobile-first, file://, system fonts. Tokens from brand-book. */
 
@@ -8247,7 +8197,6 @@ a.technique-group-link .list-row-chevron {
     return { screenId: "home", scrollEl: null };
   }
   function show(id) {
-    var t0 = performance.now();
     var resolved = resolveTarget(id);
     var screenId = resolved.screenId;
     var screens = document.querySelectorAll(".screen");
@@ -8266,21 +8215,12 @@ a.technique-group-link .list-row-chevron {
       current &&
       current.querySelector("[data-component-back], [data-product-back], [data-protocol-back], [data-technique-back], [data-morphotype-back]");
     if (!keepFrom) pendingFrom = null;
-    var tBack0 = performance.now();
     updateContextualBack();
-    var tBack1 = performance.now();
     if (resolved.scrollEl) {
       resolved.scrollEl.scrollIntoView();
     } else {
       window.scrollTo(0, 0);
     }
-    var visImgs = current ? current.querySelectorAll("img").length : 0;
-    // #region agent log
-    if (window.__dbgPerf) {
-      var t1 = performance.now();
-      window.__dbgPerf("C", "index.html:show", "show-screen", { id: id, screenId: screenId, screens: screens.length, visImgs: visImgs, showMs: Math.round((t1 - t0) * 100) / 100, backMs: Math.round((tBack1 - tBack0) * 100) / 100 });
-    }
-    // #endregion
   }
   document.addEventListener("click", function (e) {
     var n = e.target;
